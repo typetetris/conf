@@ -1,0 +1,5 @@
+nixpkgs/xmonad/xmonad-x86_64-linux
+nixpkgs/xmonad/xmonad.o
+nixpkgs/xmonad/xmonad.hi
+nixpkgs/xmonad/xmonad.errors
+nixpkgs/xmonad/xmonad.state
