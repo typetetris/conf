@@ -16,5 +16,5 @@ main = do
                         , ppTitle = xmobarColor "green" "" . shorten 50
                         }
         , modMask = mod4Mask     -- Rebind Mod to the Windows key
-        , terminal = "st"
+        , terminal = "st -f 'Roboto Mono:pixelsize=18'"
         }

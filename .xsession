@@ -2,6 +2,7 @@
 
 . ~/.profile
 
-trayer --edge top --align right --SetDockType true --SetPartialStrut true --expand true --width 10 --transparent true --tint 0x191970 --height 12 &
+nm-applet &
+trayer --edge top --align right --SetDockType true --SetPartialStrut true --expand true --widthtype request --transparent true --tint 0x191970 --heighttype request &
 
 exec xmonad

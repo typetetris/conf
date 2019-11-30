@@ -1,4 +1,4 @@
-Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
+Config { font = "xft:Roboto Mono:pixelsize=20"
        , bgColor = "black"
        , fgColor = "grey"
        , position = TopW L 90
@@ -8,7 +8,6 @@ Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
                     , Run BatteryP ["BAT0"] ["--", "-i","Idle","-l","red","-m","yellow","-h","green","-p","blue"] 10
                     , Run Date "%a %b %_d %l:%M" "date" 10
                     , Run StdinReader
-                    , Run Com "/home/erwo/.local/bin/wireless.sh" [] "wifi" 30
                     ]
        , sepChar = "%"
        , alignSep = "}{"
