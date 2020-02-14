@@ -1,3 +1,9 @@
+let
+  all-hies = import (fetchTarball {
+    url    = "https://github.com/infinisil/all-hies/tarball/92148680060ed68f24738128d8489f4f9387d2ff";
+    sha256 = "1yb75f8p09dp4yx5d3w3wvdiflaav9a5202xz9whigk2p9ndwbp5";
+  }) {};
+in
 {
   allowUnfree = true;
   packageOverrides = pkgs: with pkgs; rec {
@@ -12,6 +18,9 @@
           set list
           set listchars=tab:>-
           let g:ale_sign_column_always=1
+          set expandtab
+          let g:ale_echo_msg_format = '[%linter%] %s'
+          let g:ale_linters = { 'haskell': ['hie'] }
         '';
         packages.myVimPackage = with pkgs.vimPlugins; {
           # see examples below how to use custom packages
@@ -34,7 +43,6 @@
         mkpasswd
         mupdf
         ripgrep
-        shutter
         simple-scan
         thunderbird
         usbutils
@@ -62,6 +70,13 @@
         unzip
         vscode
         xsel
+        (
+          let
+            ghcversion = "ghc${builtins.replaceStrings ["."] [""] haskellPackages.ghc.version}";
+          in
+            all-hies.selection { selector = p: { "${ghcversion}" = p."${ghcversion}"; }; }
+        )
+          
       ];
       pathsToLink = [ "/share/man" "/share/doc" "/share/info" "/bin" "/etc" ];
       extraOutputsToInstall = [ "man" "doc" "info" ];
