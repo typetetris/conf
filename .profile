@@ -1,7 +1,4 @@
 export EDITOR="nvim"
-if [[ ${SSH_AGENT_PID:+set} != "set" ]]; then
-    eval "$(ssh-agent -s)"
-fi
 set -o vi
 
 eval "$(dircolors)"
