@@ -115,7 +115,6 @@ in
               mkdir -p $out/etc/b9
               cp ${b9ConfigFileHostnetS} $out/etc/b9/b9.conf.hostnet
             '')
-            (texlive.combine {inherit (texlive) scheme-medium xpatch;})
             b9
             xlibs.xdpyinfo
             bc
@@ -139,8 +138,8 @@ in
             qtpass
             pavucontrol
             shellcheck
-            idea.idea-community
             jdk
+            idea.idea-community
             kotlin
             stack
             libvirt.out
@@ -184,6 +183,16 @@ in
         sshfs
         gimp
         shutter
+        adobe-reader
+        binutils
+        file
+        nfs-utils
+        pass
+        teamviewer
+        tigervnc
+        virt-manager
+        x11vnc
+        zoom-us
             (
               let
                 ghcversion = "ghc${builtins.replaceStrings ["."] [""] haskellPackages.ghc.version}";
