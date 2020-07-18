@@ -1,8 +1,4 @@
 let
-  all-hies = import (fetchTarball {
-    url    = "https://github.com/infinisil/all-hies/tarball/4b6aab017cdf96a90641dc287437685675d598da";
-    sha256 = "0ap12mbzk97zmxk42fk8vqacyvpxk29r2wrnjqpx4m2w9g7gfdya";
-  }) {};
   b9ConfigFile = lxc_emulator: network:
     ''
     [global]
@@ -33,6 +29,10 @@ let
     ssh_remote_port: 22
     ssh_remote_user: jenkins
     '';
+  hydra-check = import (fetchTarball {
+    url = "https://github.com/nix-community/hydra-check/tarball/4b60c03fb43c78eca6a241384f3a50b36863d911";
+    sha256 = "1pz5pc9an1v56cda95bw1jljr2fl3g01pjfkakpgzw538kdd7fb0";
+  });
 in
   {
     allowUnfree = true;
@@ -124,6 +124,7 @@ in
             killall
             mkpasswd
             mupdf
+            (texlive.combine {inherit (texlive) scheme-medium;})
             ripgrep
             simple-scan
             thunderbird
@@ -193,13 +194,8 @@ in
         virt-manager
         x11vnc
         zoom-us
-            (
-              let
-                ghcversion = "ghc${builtins.replaceStrings ["."] [""] haskellPackages.ghc.version}";
-              in
-              all-hies.selection { selector = p: { "${ghcversion}" = p."${ghcversion}"; }; }
-              )
-
+        nox
+        (hydra-check { pkgs = pkgs; })
             ];
             pathsToLink = [ "/share" "/bin" "/etc" ];
             extraOutputsToInstall = [ "man" "doc" "info" ];
