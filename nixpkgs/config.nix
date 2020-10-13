@@ -35,6 +35,10 @@ let
   });
 in
   {
+      permittedInsecurePackages = [
+         "adobe-reader-9.5.5-1"
+       ];
+
     allowUnfree = true;
     packageOverrides = pkgs: with pkgs; rec {
       myNeovim = neovim.override {
@@ -77,19 +81,19 @@ in
       (global-set-key (kbd "C-c a") 'org-agenda)
       (global-set-key (kbd "C-c c") 'org-capture)
     '';
-    myEmacs = emacsWithPackages (epkgs: (
-      [
-        (runCommand "default.el" {}
-        ''
-        mkdir -p $out/share/emacs/site-lisp
-        cp ${myEmacsConfig} $out/share/emacs/site-lisp/default.el
-        '')
-        epkgs.org
-      ] ++ (with epkgs.melpaStablePackages; [
-        dante
-        haskell-mode
-        use-package
-      ])));
+#    myEmacs = emacsWithPackages (epkgs: (
+#      [
+#        (runCommand "default.el" {}
+#        ''
+#        mkdir -p $out/share/emacs/site-lisp
+#        cp ${myEmacsConfig} $out/share/emacs/site-lisp/default.el
+#        '')
+#        epkgs.org
+#      ] ++ (with epkgs.melpaStablePackages; [
+#        dante
+#        haskell-mode
+#        use-package
+#      ])));
 
       b9ConfigFileS = writeText "myB9ConfigFile" (b9ConfigFile "${pkgs.libvirt.out}/libexec/libvirt_lxc" "Just \"default\"");
       b9ConfigFileHostnetS = writeText "myB9ConfigFile" (b9ConfigFile "${pkgs.libvirt.out}/libexec/libvirt_lxc" "Nothing");
@@ -115,6 +119,22 @@ in
               mkdir -p $out/etc/b9
               cp ${b9ConfigFileHostnetS} $out/etc/b9/b9.conf.hostnet
             '')
+            element-desktop
+            at
+            bind
+            calibre
+            gcc
+            hydra-cli
+            inetutils
+            mercurialFull
+            poetry
+#            pkgs.poetry2nix gives strange error but nix-env -iA nixos.poetry2nix works ... 
+            pstree
+            pwgen
+            stunnel
+            vlc
+            xxd
+            erlang
             b9
             xlibs.xdpyinfo
             bc
@@ -145,7 +165,6 @@ in
             stack
             libvirt.out
             jq
-            myEmacs
             glxinfo
             htop
             cabal2nix
@@ -170,7 +189,6 @@ in
             dbeaver
             gnumake
             volumeicon
-            riot-desktop
             chromium
         gcr
         liburcu
@@ -185,7 +203,6 @@ in
         gimp
         shutter
         adobe-reader
-        binutils
         file
         nfs-utils
         pass
