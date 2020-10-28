@@ -40,6 +40,13 @@ getKeyboardLayout = do
         case actual of
                 KeyboardNeo -> return (Just (xmobarColor "red" "black" " NEO  "))
                 KeyboardUS -> return (Just (xmobarColor "green" "black" "  US  "))
+startup :: X ()
+startup = do
+  spawn "trayer --edge top --align right --SetDockType true --SetPartialStrut true --expand true --widthtype request --transparent true --heighttype pixel --height 36  --iconspacing 10  --tint 0x191970"
+  spawn "xscreensaver"
+  spawn "blueman-applet"
+  spawn "nm-applet"
+  spawn "xrdb -merge .Xresources"
 
 main = do
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
@@ -58,6 +65,7 @@ main = do
                         }
         , modMask = mod4Mask     -- Rebind Mod to the Windows key
         , terminal = "st -f 'Roboto Mono:size=12'"
+        , startupHook = startup
         }
         `additionalKeys`
         [ ((mod4Mask, xK_s), commandSubMap xmobarPipeBox),
