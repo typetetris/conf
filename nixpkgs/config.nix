@@ -135,7 +135,7 @@ in
             vlc
             xxd
             erlang
-            b9
+            #b9
             xlibs.xdpyinfo
             bc
             firefox
