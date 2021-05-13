@@ -1,0 +1,15 @@
+import XMonad
+import XMonad.Util.EZConfig(additionalKeys)
+import XMonad.Config.Xfce
+
+main = xmonad (xfceConfig 
+        { borderWidth = 5 
+        , modMask = mod4Mask     -- Rebind Mod to the Windows key
+        , terminal = "st -f 'Roboto Mono:size=12'"
+        }
+        `additionalKeys`
+        [ -- ((mod4Mask, xK_s), commandSubMap xmobarPipeBox),
+          -- ((mod4Mask, xK_BackSpace), toggleKeyboardLayout),
+          ((mod4Mask, xK_p), spawn "rofi -show run"),
+          ((mod4Mask, xK_o), spawn "rofi -show ssh")          
+          ])

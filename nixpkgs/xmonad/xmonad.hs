@@ -10,10 +10,11 @@ import XMonad.Actions.Submap (submap)
 import qualified XMonad.Util.ExtensibleState as XS
 import qualified Control.Concurrent.STM as STM
 import qualified System.Environment as Env
+import XMonad.Layout ((|||))
+import qualified XMonad.Layout.Tabbed as Tabbed
 
 commandSubMap xmobarPipeBox = submap (M.fromList [
-    ((0, xK_l), spawn "xscreensaver-command -lock"),
-    ((0, xK_d), toggleDPI xmobarPipeBox)
+    ((0, xK_l), spawn "xscreensaver-command -lock")
   ])
 
 data KeyboardLayouts = KeyboardUS | KeyboardNeo deriving (Read, Show, Typeable)
@@ -21,47 +22,6 @@ data KeyboardLayouts = KeyboardUS | KeyboardNeo deriving (Read, Show, Typeable)
 instance ExtensionClass KeyboardLayouts where
         initialValue = KeyboardNeo
         extensionType = PersistentExtension
-
-data DisplayDPI = DPI192 | DPI110 deriving (Read, Show, Typeable)
-
-instance ExtensionClass DisplayDPI where
-        initialValue = DPI192
-        extensionType = PersistentExtension
-
-toggleDpiValue DPI192 = DPI110
-toggleDpiValue DPI110 = DPI192
-
-dpiValue DPI192 = "192"
-dpiValue DPI110 = "110"
-
-scaleValues DPI192 = ("2", "0.5")
-scaleValues DPI110 = ("1", "1")
-
-setupDisplays DPI192 = spawn "xrandr --output eDP1 --auto --output DP1-1 --off            --output DP2-2 --off"
-setupDisplays DPI110 = spawn "xrandr --output eDP1 --off  --output DP2-2 --primary --auto --output DP1-1 --right-of DP2-2 --auto"
-
-setDPI :: (MonadIO m) => STM.TVar Handle -> String -> (String, String) -> m ()
-setDPI xmobarPipeBox value (gdkScale, gdkDpiScale) = do
-        spawn ("xrandr --dpi " ++ value)
---        liftIO $ Env.setEnv "GDK_SCALE" gdkScale
---        liftIO $ Env.setEnv "GDK_DPI_SCALE" gdkDpiScale
-        liftIO $ Env.unsetEnv "GDK_SCALE"
-        liftIO $ Env.unsetEnv "GDK_DPI_SCALE"
-        spawn ("xrdb -merge <<<\"Xft.dpi: " ++ value ++"\"")
-        newXmobar <- spawnPipe "xmobar ~/.xmobarrc"
-        oldPipe <- liftIO $ STM.atomically $ do
-                oldPipe <- STM.readTVar xmobarPipeBox
-                STM.writeTVar xmobarPipeBox newXmobar
-                return oldPipe
-        liftIO $ hClose oldPipe
-
-toggleDPI xmobarPipeBox = do
-        actual <- XS.get
-        let next = toggleDpiValue actual
-        setupDisplays next
-        setDPI xmobarPipeBox (dpiValue next) (scaleValues next)
-        XS.put next
-        refresh
 
 toggleKeyboardLayout = do
         actual <- XS.get
@@ -80,30 +40,33 @@ getKeyboardLayout = do
         case actual of
                 KeyboardNeo -> return (Just (xmobarColor "red" "black" " NEO  "))
                 KeyboardUS -> return (Just (xmobarColor "green" "black" "  US  "))
-getDpiValue = do
-        actual <- XS.get :: X DisplayDPI
-        return (Just (xmobarColor "yellow" "black" ("DPI: " ++ dpiValue actual)))
+startup :: X ()
+startup = do
+  spawn "trayer --edge top --align right --SetDockType true --SetPartialStrut true --expand true --widthtype request --transparent true --heighttype pixel --height 36  --iconspacing 10  --tint 0x191970"
+  spawn "xscreensaver"
+  spawn "blueman-applet"
+  spawn "nm-applet"
+  spawn "xrdb -merge .Xresources"
+--  spawn "yubioath-desktop"
 
 main = do
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
     xmobarPipeBox <- STM.atomically $ STM.newTVar xmproc
-    let actual = initialValue
-    setupDisplays actual
-    setDPI xmobarPipeBox (dpiValue actual) (scaleValues actual)
     xmonad $ docks def
         { borderWidth = 5 
         , manageHook = manageDocks <+> manageHook def
-        , layoutHook = avoidStruts  $  layoutHook def
+        , layoutHook = avoidStruts  $  Tabbed.simpleTabbed ||| layoutHook def
         , handleEventHook = fullscreenEventHook
         , logHook = dynamicLogWithPP xmobarPP
                         { ppOutput = \line -> do
                                 xmproc <- STM.atomically $ STM.readTVar xmobarPipeBox
                                 hPutStrLn xmproc line
                         , ppTitle = xmobarColor "green" "" . shorten 50
-                        , ppExtras = ppExtras xmobarPP ++ [ getKeyboardLayout, getDpiValue ]
+                        , ppExtras = ppExtras xmobarPP ++ [ getKeyboardLayout ]
                         }
         , modMask = mod4Mask     -- Rebind Mod to the Windows key
-        , terminal = "st -f 'Roboto Mono:size=14'"
+        , terminal = "st -f 'Roboto Mono:size=12'"
+        , startupHook = startup
         }
         `additionalKeys`
         [ ((mod4Mask, xK_s), commandSubMap xmobarPipeBox),
