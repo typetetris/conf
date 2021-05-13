@@ -1,5 +1,15 @@
-{ pkgs }:
+{ nixpkgs, system }:
 let
+  pkgs = import nixpkgs {
+    inherit system;
+    config = {
+        permittedInsecurePackages = [
+                "adobe-reader-9.5.5-1"
+              ];
+
+      allowUnfree = true;
+    };
+  };
     myNeovim = pkgs.neovim.override {
       configure = {
         customRC =
@@ -342,7 +352,6 @@ let
           htop
           cabal2nix
           man-pages
-          gciutils
           unzip
           xsel
           wget

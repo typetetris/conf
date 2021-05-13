@@ -7,9 +7,8 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem
       (system:
-        let pkgs = nixpkgs.legacyPackages.${system}; in
         {
-          defaultPackage = import ./config.nix { inherit pkgs; };
+          defaultPackage = import ./config.nix { inherit nixpkgs; inherit system; };
         }
       );
 }
