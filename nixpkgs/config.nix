@@ -294,7 +294,7 @@ let
     myPackages =
       pkgs.buildEnv {
         name = "myPackages";
-        paths = [
+        paths = with pkgs; [
           element-desktop
           at
           bind
