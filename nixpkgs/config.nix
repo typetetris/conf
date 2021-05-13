@@ -1,54 +1,5 @@
+{ pkgs }:
 let
-  sources = import ./nix/sources.nix;
-  b9ConfigFile =
-    ''
-      [global]
-      build_dir_root: Nothing
-      default_timeout_seconds: 3600
-      keep_temp_dirs: False
-      log_file: Nothing
-      max_cached_shared_images: Just 2
-      repository: Nothing
-      repository_cache: Just (InB9UserDir "repo-cache")
-      unique_build_dirs: True
-      verbosity: Just LogTrace
-
-      [libvirt-lxc]
-      connection: lxc:///
-      emulator_path: Just "/run/libvirt/nix-emulators/libvirt_lxc"
-      guest_capabilities: [CAP_MKNOD,CAP_SYS_ADMIN,CAP_SYS_CHROOT,CAP_SETGID,CAP_SETUID,CAP_NET_BIND_SERVICE,CAP_SETPCAP,CAP_SYS_PTRACE,CAP_SYS_MODULE]
-      guest_ram_size: RamSize 4 GB
-      image_file_names_shortener_base_path: Just "/home/tmp"
-      network: Nothing
-      use_sudo: False
-
-      [systemdNspawn]
-      console: read-only
-      executable: Just "/nix/store/grsj02sxnkgsa1hgl9rnhcwnd5p96gi7-systemd-243.7/bin/systemd-nspawn"
-      extra_args: Nothing
-      guest_capabilities: [CAP_MKNOD,CAP_SYS_ADMIN,CAP_SYS_CHROOT,CAP_SETGID,CAP_SETUID,CAP_NET_BIND_SERVICE,CAP_SETPCAP,CAP_SYS_PTRACE,CAP_SYS_MODULE]
-      max_lifetime_seconds: Just 14400
-      use_sudo: False
-
-      [tilia-repo]
-      remote_path: /var/lib/jenkins/.b9/repo-cache/local-repo
-      ssh_priv_key_file: /home/wolferic/.ssh/id_ed25519
-      ssh_remote_host: tilia
-      ssh_remote_port: 22
-      ssh_remote_user: jenkins
-    '';
-  hydra-check = fetchzip: import (fetchzip {
-    url = sources.hydra-check.url;
-    sha256 = sources.hydra-check.sha256;
-  });
-in
-{
-  permittedInsecurePackages = [
-    "adobe-reader-9.5.5-1"
-  ];
-
-  allowUnfree = true;
-  packageOverrides = pkgs: with pkgs; rec {
     myNeovim = pkgs.neovim.override {
       configure = {
         customRC =
@@ -339,59 +290,11 @@ in
         };
       };
     };
-    myEmacsConfig = writeText "default.el"
-      ''
-        (eval-when-compile
-          (require 'use-package))
-        (use-package dante
-         :ensure t
-         :after haskell-mode
-         :commands 'dante-mode
-         :init
-         (add-hook 'haskell-mode-hook 'dante-mode))
-
-        (global-set-key (kbd "C-c l") 'org-store-link)
-        (global-set-key (kbd "C-c a") 'org-agenda)
-        (global-set-key (kbd "C-c c") 'org-capture)
-      '';
-    #    myEmacs = emacsWithPackages (epkgs: (
-    #      [
-    #        (runCommand "default.el" {}
-    #        ''
-    #        mkdir -p $out/share/emacs/site-lisp
-    #        cp ${myEmacsConfig} $out/share/emacs/site-lisp/default.el
-    #        '')
-    #        epkgs.org
-    #      ] ++ (with epkgs.melpaStablePackages; [
-    #        dante
-    #        haskell-mode
-    #        use-package
-    #      ])));
-
-    b9ConfigFileS = writeText "myB9ConfigFile" b9ConfigFile;
-
 
     myPackages =
-      let b9 = import
-        (pkgs.fetchFromGitHub {
-          owner = "sheyll";
-          repo = "b9-vm-image-builder";
-          rev = "0.5.69.0";
-          sha256 = "1c37haid9nwzqa41brrqirqpgzbynfmfm88l272nijc0pqgik9bj";
-        })
-        { inherit pkgs; };
-      in
       pkgs.buildEnv {
         name = "myPackages";
         paths = [
-          (runCommand "b9ConfigFileS" { } ''
-            mkdir -p $out/etc/b9
-            cp ${b9ConfigFileS} $out/etc/b9/b9.conf
-          '')
-          #            (runCommand "b9ConfigFileS" {} ''
-          #              mkdir -p $out/etc/b9
-          #              cp ${b9ConfigFileHostnetS} $out/etc/b9/b9.conf.hostnet
-          #            '')
           element-desktop
           at
           bind
@@ -401,13 +304,11 @@ in
           inetutils
           mercurialFull
           poetry
-          #            pkgs.poetry2nix gives strange error but nix-env -iA nixos.poetry2nix works ... 
           pstree
           pwgen
           stunnel
           vlc
           xxd
-          #b9
           xlibs.xdpyinfo
           bc
           firefox
@@ -416,7 +317,6 @@ in
           killall
           mkpasswd
           mupdf
-          #  (texlive.combine {inherit (texlive) scheme-medium;})
           ripgrep
           simple-scan
           thunderbird
@@ -442,7 +342,7 @@ in
           htop
           cabal2nix
           man-pages
-          pciutils
+          gciutils
           unzip
           xsel
           wget
@@ -482,7 +382,6 @@ in
           zoom-us
           nox
           nodejs
-          #  (hydra-check pkgs.fetchzip { pkgs = pkgs; })
         ];
         pathsToLink = [ "/share" "/bin" "/etc" ];
         extraOutputsToInstall = [ "man" "doc" "info" ];
@@ -495,5 +394,4 @@ in
           fi
         '';
       };
-  };
-}
+in myPackages
