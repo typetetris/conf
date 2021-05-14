@@ -162,7 +162,7 @@ let
                   \})
           call coc#config('coc.preferences.currentFunctionSymbolAutoUpdate', 'true')
           call coc#config('rust-analyzer', {
-                  \ "server": {"path":  "/home/wolferic/.cargo/bin/rust-analyzer"},
+                  \ "server": {"path":  "/home/typetetris/.cargo/bin/rust-analyzer"},
                   \ "checkOnSave": {"command": "clippy"}
                   \})
 
